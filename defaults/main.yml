@@ -1,4 +1,5 @@
 ---
+certbot_agree_tos: false
 certbot_allow_breaking: false
 certbot_ca: ''
 certbot_certs: []
@@ -13,12 +14,11 @@ certbot_server: ''
 certbot_state: present
 certbot_test: false
 
-# TODO user should accept eula
-
 certbot_request_command: >-
   {{ certbot_script }} certonly --{{ certbot_request_method }}
   {{ '--test-cert' if certbot_used_test else '' }}
-  --noninteractive --agree-tos --force-renew
+  {{ '--agree-tos' if certbot_agree_tos else '' }}
+  --noninteractive --force-renew
   --email {{ certbot_used_email }}
   --cert-name {{ cert_item.primary_domain }}
   -d {{ cert_item.primary_domain }} {{ '-d ' + cert_item.domains | join(' -d ')

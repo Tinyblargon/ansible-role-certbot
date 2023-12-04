@@ -17,6 +17,7 @@ Ansible Role to configure Certbot (for Let's Encrypt)
 | certbot_certs:         | no          | array  | []               | The list of certificates that should be requested see [Certbpt_certs](#certbot_certs) for more info.|
 | certbot_request_method:| no          | string | "standalone"     | The method for requesting certificates, can be one of the following `"standalone"`, `"nginx"`, `"apache"`. When `"nginx"` or `"apache"` the corresponding certbot plugin will be installed.|
 | certbot_email:         | yes*        | string | ""               | The email address used for requesting the certificate.|
+| certbot_agree_tos:     | yes         | bool   | false            | Set to `true` in order to agree to the Let's Encrypt Terms Of Service. You only have to agree when requesting a certificate from Let's Encrypt, this may be `false` when using a different ACME server.|
 | certbot_state:         | no          | string | "present"        | When `"present"` certbot will be installed and configured, when `"absent"` certbot will be removed.|
 | certbot_remove_unknown:| no          | bool   | false            | When `true` all certificates that aren't configured with ansible will be removed.|
 | certbot_key_type:      | no          | string | "ecdsa"          | The protocol used for the key, can be `"ecdsa"` or `"rsa"`.|
