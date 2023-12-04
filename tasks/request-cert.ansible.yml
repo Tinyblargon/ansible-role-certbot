@@ -1,0 +1,17 @@
+---
+- name: Attempt to Request new certificate
+  block:
+    - name: Request new certificate
+      ansible.builtin.command: "{{ certbot_request_command }}"
+      environment: >-
+        {{ {} if certbot_used_ca == ''
+        else {'REQUESTS_CA_BUNDLE': certbot_used_ca} }}
+      changed_when: true
+      no_log: true
+  rescue:
+    - name: Display error message
+      ansible.builtin.fail:
+        msg: >-
+          {{ 'for replacing producton certificates with staging ones certbot_allow_breaking should be set to true'
+          if '--break-my-certs' in ansible_failed_result.stderr
+          else ansible_failed_result.stderr }}

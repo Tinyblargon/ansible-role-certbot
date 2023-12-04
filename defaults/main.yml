@@ -1,0 +1,36 @@
+---
+certbot_allow_breaking: false
+certbot_ca: ''
+certbot_certs: []
+certbot_email: ''
+certbot_key_curve: secp384r1
+certbot_key_type: ecdsa
+certbot_key_size: 4096
+certbot_remove_unknown: false
+certbot_request_method: standalone
+certbot_script: certbot
+certbot_server: ''
+certbot_state: present
+certbot_test: false
+
+# TODO user should accept eula
+
+certbot_request_command: >-
+  {{ certbot_script }} certonly --{{ certbot_request_method }}
+  {{ '--test-cert' if certbot_used_test else '' }}
+  --noninteractive --agree-tos --force-renew
+  --email {{ certbot_used_email }}
+  --cert-name {{ cert_item.primary_domain }}
+  -d {{ cert_item.primary_domain }} {{ '-d ' + cert_item.domains | join(' -d ')
+  if cert_item.domains is defined and cert_item.domains | length > 0 }}
+  {{ ('--server ' + certbot_used_server) if certbot_used_server else '' }}
+  --key-type {{ certbot_used_key_type }}
+  {{ '--elliptic-curve ' + certbot_used_key_curve
+  if certbot_used_key_type == 'ecdsa' else '' }}
+  {{ '--rsa-key-size ' + certbot_used_key_size
+  if certbot_used_key_type == 'rsa' else '' }}
+  {{ '--break-my-certs' if certbot_used_allow_breaking }}
+
+certbot_remove_command: >-
+  {{ certbot_script }} delete --non-interactive
+  --cert-name {{ cert_item.primary_domain | default(cert_item.domain) }}

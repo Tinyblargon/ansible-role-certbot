@@ -1,0 +1,10 @@
+---
+- name: Configure certbot
+  ansible.builtin.include_tasks:
+    file: present.ansible.yml
+  when: certbot_state == 'present'
+
+- name: Remove certbot
+  ansible.builtin.include_tasks:
+    file: absent.ansible.yml
+  when: certbot_state == 'absent'

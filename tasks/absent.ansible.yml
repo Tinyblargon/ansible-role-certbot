@@ -1,0 +1,8 @@
+---
+- name: Ensure certbot and plugins are removed
+  ansible.builtin.apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+      - python3-certbot-apache
+    state: absent

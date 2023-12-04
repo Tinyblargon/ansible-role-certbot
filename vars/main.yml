@@ -1,0 +1,80 @@
+---
+certbot_used_allow_breaking: >-
+  {{ cert_item.allow_breaking | default(certbot_allow_breaking) }}
+certbot_used_email: "{{ cert_item.email | default(certbot_email) }}"
+certbot_used_ca: "{{ cert_item.ca | default(certbot_ca) }}"
+certbot_used_key_curve: "{{ cert_item.key_curve | default(certbot_key_curve) }}"
+certbot_used_key_size: "{{ cert_item.key_size | default(certbot_key_size) }}"
+certbot_used_key_type: >-
+  {{ (cert_item.key_type | default(certbot_key_type)) | lower() }}
+certbot_used_server: "{{ cert_item.server | default(certbot_server) }}"
+certbot_used_test: "{{ cert_item.test | default(certbot_test) }}"
+
+certbot_certs_properties: []
+
+certbot_is_ecdsa: "{{ certbot_used_key_type | lower() in ['ecc', 'ecdsa'] }}"
+certbot_is_rsa: "{{ certbot_used_key_type | lower() == 'rsa' }}"
+
+# Selects the certificate from the list of certificates
+certbot_select_cert: >-
+  {{ certbot_certs_properties |
+  selectattr('domain', 'equalto', cert_item.primary_domain) }}
+
+# This condition determens if the certificates are the same
+certbot_con_same: >-
+  {{ certbot_select_cert | length > 0
+  and certbot_con_same_domains
+  and certbot_con_same_mode
+  and certbot_con_same_key }}
+
+certbot_con_same_domains: >-
+  {{ (certbot_current_domains | difference(certbot_cert_domains) | length == 0)
+  and (certbot_cert_domains | difference(certbot_current_domains) |
+  length == 0) }}
+
+certbot_current_domains: >-
+  {{ certbot_select_cert.0.crt.subject_alt_name |
+  map('regex_replace', '^DNS:', '') | list }}
+
+certbot_cert_domains: >-
+  {{ [cert_item.primary_domain] +
+  (cert_item.domains if cert_item.domains is defined else []) }}
+
+# Check if the current and the configured certificate are both staging or both production
+certbot_con_same_mode: >-
+  {{ (certbot_used_test and certbot_con_is_staging)
+  or (not certbot_used_test and not certbot_con_is_staging) }}
+
+certbot_con_is_staging: >-
+  {{ (certbot_select_cert.0.crt.issuer.organizationName is defined
+  and 'staging' in certbot_select_cert.0.crt.issuer.organizationName | lower)
+  or (certbot_select_cert.0.crt.issuer.commonName is defined
+  and 'staging' in certbot_select_cert.0.crt.issuer.commonName | lower) }}
+
+# Check if the current and the configured certificate have the same key settings
+certbot_con_same_key: >-
+  {{ certbot_con_same_key_type
+  and ((certbot_is_rsa and certbot_con_same_key_size)
+  or (certbot_is_ecdsa and certbot_con_same_key_curve)) }}
+
+# Check if the current and the configured certificate have the same key type
+certbot_con_same_key_type: >-
+  {{ certbot_select_cert.0.crt.public_key_type | lower() == certbot_used_key_type
+  or (certbot_select_cert.0.crt.public_key_type | lower() == 'ecc'
+  and certbot_is_ecdsa) }}
+
+# Check if the current and the configured certificate have the same key size
+certbot_con_same_key_size: >-
+  {{ certbot_select_cert.0.crt.public_key_data.size is defined
+  and certbot_select_cert.0.crt.public_key_data.size |
+  int == certbot_used_key_size | int }}
+
+# Check if the current and the configured certificate have the same key curve
+certbot_con_same_key_curve: >-
+  {{ certbot_select_cert.0.crt.public_key_data.curve is defined
+  and certbot_select_cert.0.crt.public_key_data.curve == certbot_used_key_curve }}
+
+# Used for cheking if the certificae is configured.
+certbot_select_cert_item: >-
+  {{ certbot_certs |
+  selectattr('primary_domain', 'equalto', cert_item.domain) }}

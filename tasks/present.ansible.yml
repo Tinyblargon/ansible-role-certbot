@@ -1,0 +1,51 @@
+---
+- name: Ensure certbot is installed
+  ansible.builtin.apt:
+    name: certbot
+    state: present
+    cache_valid_time: 3600
+
+- name: Install Certbot plugin
+  ansible.builtin.package:
+    name: python3-certbot-{{ certbot_request_method }}
+    state: present
+  when: certbot_request_method in ["nginx", "apache"]
+
+- name: List all certificates
+  ansible.builtin.command:
+    cmd: "{{ certbot_script }} certificates"
+  register: certbot_available_certs
+  changed_when: false
+
+- name: Get certificate properties
+  ansible.builtin.include_tasks:
+    file: check-cert.ansible.yml
+  with_items: >-
+    {{ certbot_available_certs.stdout |
+    regex_findall('Certificate Path: (.+[^\n])') | list }}
+  loop_control:
+    loop_var: fullchain_item
+
+- name: Remove certificates
+  ansible.builtin.command:
+    cmd: "{{ certbot_remove_command }}"
+  with_items: "{{ certbot_certs_properties }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.domain }}"
+  when:
+    (certbot_select_cert_item.0.state is defined
+    and certbot_select_cert_item.0.state == 'absent')
+    or (not certbot_select_cert_item | length > 0 and certbot_remove_unknown )
+  changed_when: true
+
+- name: Request certificates
+  ansible.builtin.include_tasks:
+    file: request-cert.ansible.yml
+  with_items: "{{ certbot_certs }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.primary_domain }}"
+  when:
+    not certbot_con_same
+    and not (cert_item.state is defined and cert_item.state == 'absent')

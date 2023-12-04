@@ -1,0 +1,18 @@
+---
+- name: Read certificate's contents from remote machine
+  ansible.builtin.slurp:
+    src: "{{ fullchain_item }}"
+  register: certbot_certificate_content
+
+- name: Get certificate properties
+  community.crypto.x509_certificate_info:
+    content: "{{ certbot_certificate_content.content | b64decode }}"
+  register: certbot_crt_info
+  delegate_to: localhost
+  become: false
+
+- name: Build certificate list
+  ansible.builtin.set_fact:
+    certbot_certs_properties: >-
+      {{ certbot_certs_properties +
+      [{'domain': fullchain_item.split('/')[4], 'crt': certbot_crt_info}] }}
