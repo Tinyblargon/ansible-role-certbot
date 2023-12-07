@@ -21,16 +21,16 @@ certbot_select_cert: >-
   selectattr('domain', 'equalto', cert_item.primary_domain) }}
 
 # This condition determens if the certificates are the same
-certbot_con_same: >-
-  {{ certbot_select_cert | length > 0
-  and certbot_con_same_domains
-  and certbot_con_same_mode
-  and certbot_con_same_key }}
+certbot_con_diff: >-
+  {{ certbot_select_cert | length == 0
+  or certbot_con_diff_domains
+  or not certbot_con_same_mode
+  or not certbot_con_same_key }}
 
-certbot_con_same_domains: >-
-  {{ (certbot_current_domains | difference(certbot_cert_domains) | length == 0)
-  and (certbot_cert_domains | difference(certbot_current_domains) |
-  length == 0) }}
+certbot_con_diff_domains: >-
+  {{ (certbot_current_domains | difference(certbot_cert_domains) | length > 0)
+  or (certbot_cert_domains | difference(certbot_current_domains) |
+  length > 0) }}
 
 certbot_current_domains: >-
   {{ certbot_select_cert.0.crt.subject_alt_name |
