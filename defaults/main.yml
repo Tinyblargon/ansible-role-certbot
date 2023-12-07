@@ -25,10 +25,8 @@ certbot_request_command: >-
   if cert_item.domains is defined and cert_item.domains | length > 0 }}
   {{ ('--server ' + certbot_used_server) if certbot_used_server else '' }}
   --key-type {{ certbot_used_key_type }}
-  {{ '--elliptic-curve ' + certbot_used_key_curve
-  if certbot_used_key_type == 'ecdsa' else '' }}
-  {{ '--rsa-key-size ' + certbot_used_key_size
-  if certbot_used_key_type == 'rsa' else '' }}
+  {{ '--elliptic-curve ' + certbot_used_key_curve if certbot_is_ecdsa else '' }}
+  {{ '--rsa-key-size ' + certbot_used_key_size if certbot_is_rsa else '' }}
   {{ '--break-my-certs' if certbot_used_allow_breaking }}
 
 certbot_remove_command: >-
