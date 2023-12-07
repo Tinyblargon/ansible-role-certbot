@@ -1,0 +1,133 @@
+---
+- name: Assert primary_domain is not empty
+  when: certbot_certs | length > 0
+  block:
+    - name: Assert primary_domain is not empty
+      ansible.builtin.assert:
+        that: >-
+          {{ certbot_primary_domain_list | length == certbot_certs | length }}
+      vars:
+        certbot_primary_domain_list: >-
+          {{ certbot_certs | selectattr('primary_domain', 'defined') |
+          rejectattr('primary_domain', 'equalto', '') |
+          rejectattr('primary_domain', 'equalto', none) | list }}
+      no_log: true
+  rescue:
+    - name: Fail primary_domain is empty
+      ansible.builtin.fail:
+        msg: "primary_domain is unset or empty"
+
+- name: Assert no duplicate domains
+  when: certbot_certs | length > 0
+  vars:
+    certbot_combined_list: >-
+      {{ certbot_certs | map(attribute='primary_domain') |
+      list + certbot_certs | map(attribute='domains', default=[]) |
+      flatten }}
+  block:
+    - name: Assert no duplicate domains
+      ansible.builtin.assert:
+        that: >-
+          {{ certbot_combined_list | unique | length ==
+          certbot_combined_list | length }}
+      no_log: true
+  rescue:
+    - name: Fail duplicate domains
+      ansible.builtin.fail:
+        msg: >-
+          Found the following duplicate domains:
+          {{ (certbot_combined_list | community.general.counter) | dict2items |
+          selectattr('value', '>', 1) | map(attribute='key') }}
+
+- name: Assert email is not empty
+  when: certbot_certs | length > 0
+  block:
+    - name: Assert email is not empty
+      ansible.builtin.assert:
+        that: "{{ certbot_used_email != '' }}"
+      with_items: "{{ certbot_certs }}"
+      loop_control:
+        loop_var: cert_item
+        label: "{{ cert_item.primary_domain }}"
+      no_log: true
+  rescue:
+    - name: Fail email is empty
+      ansible.builtin.fail:
+        msg: >-
+          email is unset or empty {{ certbot_failed_domains }}
+
+- name: Assert key_type is valid
+  when: certbot_certs | length > 0
+  block:
+    - name: Assert key_type is valid
+      ansible.builtin.assert:
+        that: "{{ certbot_used_key_type in certbot_valid_key_type }}"
+      with_items: "{{ certbot_certs }}"
+      loop_control:
+        loop_var: cert_item
+        label: "{{ cert_item.primary_domain }}"
+      no_log: true
+  rescue:
+    - name: Fail key_type is invalid
+      ansible.builtin.fail:
+        msg: >-
+          key_type should be one of: {{ certbot_valid_key_type }},
+          {{ certbot_failed_domains }}
+
+- name: Assert key_curve is valid
+  when: certbot_certs | length > 0
+  block:
+    - name: Assert key_curve is valid
+      ansible.builtin.assert:
+        that: "{{ certbot_used_key_curve in certbot_valid_key_curve }}"
+      with_items: "{{ certbot_certs }}"
+      loop_control:
+        loop_var: cert_item
+        label: "{{ cert_item.primary_domain }}"
+      no_log: true
+      when: certbot_is_ecdsa
+  rescue:
+    - name: Fail key_curve is invalid
+      ansible.builtin.fail:
+        msg: >-
+          key_curve should be one of: {{ certbot_valid_key_curve }},
+          {{ certbot_failed_domains }}
+
+- name: Assert key_curve is valid for Let's Encrypt
+  when: certbot_certs | length > 0
+  block:
+    - name: Assert key_curve is valid for Let's Encrypt
+      ansible.builtin.assert:
+        that: "{{ certbot_used_key_curve == 'secp384r1' }}"
+      with_items: "{{ certbot_certs }}"
+      loop_control:
+        loop_var: cert_item
+        label: "{{ cert_item.primary_domain }}"
+      no_log: true
+      when: certbot_is_ecdsa and certbot_used_server == ''
+  rescue:
+    - name: Fail key_curve is invalid for Let's Encrypt
+      ansible.builtin.fail:
+        msg: >-
+          key_curve should be one of: {{ certbot_valid_key_curve }},
+          {{ certbot_failed_domains }}
+
+- name: Assert key_size is valid
+  when: certbot_certs | length > 0
+  block:
+    - name: Assert key_size is valid
+      ansible.builtin.assert:
+        that: >-
+          {{ certbot_used_key_size | int in certbot_valid_key_size }}
+      with_items: "{{ certbot_certs }}"
+      loop_control:
+        loop_var: cert_item
+        label: "{{ cert_item.primary_domain }}"
+      no_log: true
+      when: certbot_is_rsa
+  rescue:
+    - name: Fail key_size is invalid
+      ansible.builtin.fail:
+        msg: >-
+          key_size should be one of: {{ certbot_valid_key_size }},
+          {{ certbot_failed_domains }}

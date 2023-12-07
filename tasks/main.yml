@@ -1,4 +1,10 @@
 ---
+- name: Check variables are correct
+  ansible.builtin.import_tasks:
+    file: assert.ansible.yml
+  run_once: true
+  delegate_to: localhost
+
 - name: Configure certbot
   ansible.builtin.include_tasks:
     file: present.ansible.yml

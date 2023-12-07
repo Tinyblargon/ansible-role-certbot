@@ -21,8 +21,8 @@ Ansible Role to configure Certbot (for Let's Encrypt)
 | certbot_state:         | no          | string | "present"        | When `"present"` certbot will be installed and configured, when `"absent"` certbot will be removed.|
 | certbot_remove_unknown:| no          | bool   | false            | When `true` all certificates that aren't configured with ansible will be removed.|
 | certbot_key_type:      | no          | string | "ecdsa"          | The protocol used for the key, can be `"ecdsa"` or `"rsa"`.|
-| certbot_key_curve:     | no          | string | secp384r1        | The curve that should be used for the key, only active when `certbot_key_type:` is `"rsa"`. The following curves are allowed `"secp256r1"`, `"secp384r1"`, `"secp521r1"`.|
-| certbot_key_size:      | no          | int    | 4096             | The size of the key, only active when `certbot_key_type:` is `"rsa"`.|
+| certbot_key_curve:     | no          | string | secp384r1        | The curve that should be used for the key, only active when `certbot_key_type:` is `"rsa"`. The following curves are allowed: `"secp256r1"`, `"secp384r1"`, `"secp521r1"`. **NOTE**: that Let's Encrypt only supports `"secp384r1"`, This will be enforced when `server:` is empty.|
+| certbot_key_size:      | no          | int    | 4096             | The size of the key, only active when `certbot_key_type:` is `"rsa"`. The following sizes are allowed: `2048`, `3072`, `4096`|
 | certbot_test:          | no          | bool   | false            | When `true` a test certificate will be requested.|
 | certbot_ca:            | no          | string | ""               | Path to the CA to use for request validation, should be used in tandem with `certbot_server:`.|
 | certbot_server:        | no          | string | ""               | Url for a custom ACME server, should be used in tandem with `certbot_ca`.|

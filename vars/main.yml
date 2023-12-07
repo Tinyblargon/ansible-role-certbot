@@ -10,10 +10,22 @@ certbot_used_key_type: >-
 certbot_used_server: "{{ cert_item.server | default(certbot_server) }}"
 certbot_used_test: "{{ cert_item.test | default(certbot_test) }}"
 
+certbot_valid_key_curve:
+  - secp256r1
+  - secp384r1
+  - secp521r1
+certbot_valid_key_size:
+  - 2048
+  - 3072
+  - 4096
+certbot_valid_key_type:
+  - rsa
+  - ecdsa
+
 certbot_certs_properties: []
 
-certbot_is_ecdsa: "{{ certbot_used_key_type | lower() in ['ecc', 'ecdsa'] }}"
-certbot_is_rsa: "{{ certbot_used_key_type | lower() == 'rsa' }}"
+certbot_is_ecdsa: "{{ certbot_used_key_type in ['ecc', 'ecdsa'] }}"
+certbot_is_rsa: "{{ certbot_used_key_type == 'rsa' }}"
 
 # Selects the certificate from the list of certificates
 certbot_select_cert: >-
@@ -78,3 +90,10 @@ certbot_con_same_key_curve: >-
 certbot_select_cert_item: >-
   {{ certbot_certs |
   selectattr('primary_domain', 'equalto', cert_item.domain) }}
+
+# Error for the asserts
+certbot_failed_domains: >-
+  for the following domains:
+  {{ ansible_failed_result.results | selectattr('failed', 'defined') |
+  selectattr('failed', 'equalto', true) | map(attribute='_ansible_item_label') |
+  list }}
