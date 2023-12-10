@@ -86,6 +86,9 @@ certbot_con_same_key_curve: >-
   {{ certbot_select_cert.0.crt.public_key_data.curve is defined
   and certbot_select_cert.0.crt.public_key_data.curve == certbot_used_key_curve }}
 
+certbot_con_cert_item_absent: >-
+  {{ cert_item.state is defined and cert_item.state == 'absent' }}
+
 # Used for cheking if the certificae is configured.
 certbot_select_cert_item: >-
   {{ certbot_certs |

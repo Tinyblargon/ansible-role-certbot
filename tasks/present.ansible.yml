@@ -48,4 +48,4 @@
     label: "{{ cert_item.primary_domain }}"
   when:
     certbot_con_diff
-    and not (cert_item.state is defined and cert_item.state == 'absent')
+    and not certbot_con_cert_item_absent
