@@ -7,6 +7,8 @@ certbot_used_key_curve: "{{ cert_item.key_curve | default(certbot_key_curve) }}"
 certbot_used_key_size: "{{ cert_item.key_size | default(certbot_key_size) }}"
 certbot_used_key_type: >-
   {{ (cert_item.key_type | default(certbot_key_type)) | lower() }}
+certbot_used_renew_before_expiry: >-
+  {{ cert_item.renew_before_expiry | default(certbot_renew_before_expiry) }}
 certbot_used_server: "{{ cert_item.server | default(certbot_server) }}"
 certbot_used_test: "{{ cert_item.test | default(certbot_test) }}"
 
@@ -85,6 +87,9 @@ certbot_con_same_key_size: >-
 certbot_con_same_key_curve: >-
   {{ certbot_select_cert.0.crt.public_key_data.curve is defined
   and certbot_select_cert.0.crt.public_key_data.curve == certbot_used_key_curve }}
+
+certbot_con_cert_item_absent: >-
+  {{ cert_item.state is defined and cert_item.state == 'absent' }}
 
 # Used for cheking if the certificae is configured.
 certbot_select_cert_item: >-

@@ -48,4 +48,20 @@
     label: "{{ cert_item.primary_domain }}"
   when:
     certbot_con_diff
-    and not (cert_item.state is defined and cert_item.state == 'absent')
+    and not certbot_con_cert_item_absent
+
+- name: Update renew_before_expiry in letsencrypt renewal configuration
+  ansible.builtin.lineinfile:
+    path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
+    regexp: "^(#?\\s*renew_before_expiry\\s*=.*)$"
+    line: "{{ certbot_hashtag }}renew_before_expiry = {{ certbot_days }}"
+    insertbefore: BOF
+  vars:
+    certbot_hashtag: >-
+      {{ '' if certbot_used_renew_before_expiry | int > 0 else '# ' }}
+    certbot_days: "{{ certbot_used_renew_before_expiry }} days"
+  with_items: "{{ certbot_certs }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.primary_domain }}"
+  when: not certbot_con_cert_item_absent
