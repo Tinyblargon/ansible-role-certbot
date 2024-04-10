@@ -12,6 +12,8 @@ certbot_used_renew_before_expiry: >-
 certbot_used_server: "{{ cert_item.server | default(certbot_server) }}"
 certbot_used_test: "{{ cert_item.test | default(certbot_test) }}"
 
+certbot_letsencrypt_valid_key_curve:
+  - secp384r1
 certbot_valid_key_curve:
   - secp256r1
   - secp384r1
