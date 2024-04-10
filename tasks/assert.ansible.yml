@@ -98,7 +98,8 @@
   block:
     - name: Assert key_curve is valid for Let's Encrypt
       ansible.builtin.assert:
-        that: "{{ certbot_used_key_curve == 'secp384r1' }}"
+        that: >-
+          {{ certbot_used_key_curve in certbot_letsencrypt_valid_key_curve }}
       with_items: "{{ certbot_certs }}"
       loop_control:
         loop_var: cert_item
@@ -109,7 +110,7 @@
     - name: Fail key_curve is invalid for Let's Encrypt
       ansible.builtin.fail:
         msg: >-
-          key_curve should be one of: {{ certbot_valid_key_curve }},
+          key_curve should be one of: {{ certbot_letsencrypt_valid_key_curve }},
           {{ certbot_failed_domains }}
 
 - name: Assert key_size is valid
