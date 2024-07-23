@@ -5,6 +5,7 @@ collections:
 
 galaxy_info:
   role_name: certbot
+  namespace: tinyblargon
   author: Tinyblargon
   description: Ansible Role to configure Certbot (for Let's Encrypt).
   license: MIT
