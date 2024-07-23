@@ -66,7 +66,7 @@ N/A
 ```yaml
 - hosts: all
   roles:
-    - role: Tinyblargon.certbot
+    - role: tinyblargon.certbot
       vars:
         certbot_certs:
           - primary_domain: example.com
