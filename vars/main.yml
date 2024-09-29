@@ -7,6 +7,8 @@ certbot_used_key_curve: "{{ cert_item.key_curve | default(certbot_key_curve) }}"
 certbot_used_key_size: "{{ cert_item.key_size | default(certbot_key_size) }}"
 certbot_used_key_type: >-
   {{ (cert_item.key_type | default(certbot_key_type)) | lower() }}
+certbot_used_post_hook: "{{ cert_item.post_hook | default(certbot_post_hook) }}"
+certbot_used_pre_hook: "{{ cert_item.pre_hook | default(certbot_pre_hook) }}"
 certbot_used_renew_before_expiry: >-
   {{ cert_item.renew_before_expiry | default(certbot_renew_before_expiry) }}
 certbot_used_server: "{{ cert_item.server | default(certbot_server) }}"
@@ -25,6 +27,9 @@ certbot_valid_key_size:
 certbot_valid_key_type:
   - rsa
   - ecdsa
+
+certbot_regex_pre_hook: "^#?\\s*pre_hook\\s*=.*$"
+certbot_regex_post_hook: "^#?\\s*post_hook\\s*=.*$"
 
 certbot_certs_properties: []
 
@@ -117,6 +122,18 @@ certbot_list_certs_present: >-
   {{ (certbot_certs | selectattr('state', 'undefined'))
     + (certbot_certs | selectattr('state', 'defined')
     | selectattr('state', 'equalto', 'present')) }}
+
+# return a list of certbot_certs objects the certificates where state: is undefined or 'present' and the primary_domain is in the list of installed certificates
+certbot_list_certs_present_existing: >-
+  {{ certbot_list_certs_present
+  | selectattr('primary_domain', 'in',
+    certbot_certs_properties | map(attribute='domain') | list) | list}}
+
+# return a list of certbot_certs objects the certificates where state: is undefined or 'present' and the primary_domain is not in the list of installed certificates
+certbot_list_certs_present_not_existing: >-
+  {{ certbot_list_certs_present
+  | rejectattr('primary_domain', 'in',
+    certbot_certs_properties | map(attribute='domain') | list) | list}}
 
 # returns a list of domains that are installed
 certbot_list_certs_installed: >-
