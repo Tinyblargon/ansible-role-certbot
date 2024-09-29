@@ -52,8 +52,7 @@
     certbot_hashtag: >-
       {{ '' if certbot_used_renew_before_expiry | int > 0 else '# ' }}
     certbot_days: "{{ certbot_used_renew_before_expiry }} days"
-  with_items: "{{ certbot_certs }}"
+  with_items: "{{ certbot_list_certs_present }}"
   loop_control:
     loop_var: cert_item
     label: "{{ cert_item.primary_domain }}"
-  when: not certbot_con_cert_item_absent

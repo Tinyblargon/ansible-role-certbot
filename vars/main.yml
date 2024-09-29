@@ -112,6 +112,12 @@ certbot_list_certs_absent: >-
 certbot_list_certs_absent_primary_domain: >-
   {{ certbot_list_certs_absent | map(attribute='primary_domain') | list }}
 
+# return a list of certbot_certs objects the certificates where state: is undefined or 'present'
+certbot_list_certs_present: >-
+  {{ (certbot_certs | selectattr('state', 'undefined'))
+    + (certbot_certs | selectattr('state', 'defined')
+    | selectattr('state', 'equalto', 'present')) }}
+
 # returns a list of domains that are installed
 certbot_list_certs_installed: >-
   {{ (certbot_certs_properties | map(attribute='domain'))
