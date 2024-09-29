@@ -31,5 +31,4 @@ certbot_request_command: >-
   {{ '--break-my-certs' if certbot_used_allow_breaking }}
 
 certbot_remove_command: >-
-  {{ certbot_script }} delete --non-interactive
-  --cert-name {{ cert_item.primary_domain | default(cert_item.domain) }}
+  {{ certbot_script }} delete --non-interactive --cert-name {{ item }}

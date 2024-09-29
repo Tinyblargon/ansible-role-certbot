@@ -93,10 +93,34 @@ certbot_con_same_key_curve: >-
 certbot_con_cert_item_absent: >-
   {{ cert_item.state is defined and cert_item.state == 'absent' }}
 
-# Used for cheking if the certificae is configured.
-certbot_select_cert_item: >-
-  {{ certbot_certs |
-  selectattr('primary_domain', 'equalto', cert_item.domain) }}
+# list of certificate names to remove
+certbot_remove_certs: >-
+  {{ (certbot_list_certs_installed
+    | intersect(certbot_list_certs_absent_primary_domain))
+    + certbot_list_certs_unknown if certbot_remove_unknown else [] }}
+
+# return a list of certbot_certs.primary_domain regardless of the state
+certbot_list_certs_primary_domain: >-
+  {{ certbot_certs | map(attribute='primary_domain') | list }}
+
+# return a list of certbot_certs objects the certificates where state:'absent'
+certbot_list_certs_absent: >-
+  {{ certbot_certs | selectattr('state', 'defined')
+    | selectattr('state', 'equalto', 'absent') }}
+
+# returns primary_domain: certbot_list_certs_absent:
+certbot_list_certs_absent_primary_domain: >-
+  {{ certbot_list_certs_absent | map(attribute='primary_domain') | list }}
+
+# returns a list of domains that are installed
+certbot_list_certs_installed: >-
+  {{ (certbot_certs_properties | map(attribute='domain'))
+    if certbot_certs_properties | length > 0
+    else [] }}
+
+certbot_list_certs_unknown: >-
+  {{ certbot_list_certs_installed
+    | difference(certbot_list_certs_primary_domain) }}
 
 # Error for the asserts
 certbot_failed_domains: >-
