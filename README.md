@@ -28,7 +28,7 @@ Ansible Role to configure Certbot (for Let's Encrypt)
 | certbot_deploy_hook:        | no          | string | ""               | The command to be run when a certificate was successfully requested/renewed. The command will be encapsulated in `''`.|
 | certbot_test:               | no          | bool   | false            | When `true` a test certificate will be requested.|
 | certbot_ca:                 | no          | string | ""               | Path to the CA to use for request validation, should be used in tandem with `certbot_server:`.|
-| certbot_server:             | no          | string | ""               | Url for a custom ACME server, should be used in tandem with `certbot_ca`.|
+| certbot_server:             | no          | string | ""               | Url for a custom ACME server, should be used in tandem with `certbot_ca:`.|
 | certbot_renew_before_expiry:| no          | int    | 0                | The number of days before certificate expiry certbot should renew the certificate. When this is `0` certbot's default value will be used.|
 | certbot_allow_breaking:     | no          | bool   | false            | Whether certbot is allowed to replace valid certificates with invalid/testing certificates.|
 | certbot_script:             | no          | string | "certbot"        | The command for executing certbot.|
