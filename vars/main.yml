@@ -1,6 +1,8 @@
 ---
 certbot_used_allow_breaking: >-
   {{ cert_item.allow_breaking | default(certbot_allow_breaking) }}
+certbot_used_deploy_hook: >-
+  {{ cert_item.deploy_hook | default(certbot_deploy_hook) }}
 certbot_used_email: "{{ cert_item.email | default(certbot_email) }}"
 certbot_used_ca: "{{ cert_item.ca | default(certbot_ca) }}"
 certbot_used_key_curve: "{{ cert_item.key_curve | default(certbot_key_curve) }}"
@@ -28,6 +30,7 @@ certbot_valid_key_type:
   - rsa
   - ecdsa
 
+certbot_regex_deploy_hook: "^#?\\s*deploy_hook\\s*=.*$"
 certbot_regex_pre_hook: "^#?\\s*pre_hook\\s*=.*$"
 certbot_regex_post_hook: "^#?\\s*post_hook\\s*=.*$"
 

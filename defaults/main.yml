@@ -3,6 +3,7 @@ certbot_agree_tos: false
 certbot_allow_breaking: false
 certbot_ca: ""
 certbot_certs: []
+certbot_deploy_hook: ""
 certbot_email: ""
 certbot_key_curve: secp384r1
 certbot_key_size: 4096
@@ -35,6 +36,8 @@ certbot_request_command: >-
     if certbot_used_pre_hook != '' else '' }}
   {{ "--post-hook '" + certbot_used_post_hook + "'"
     if certbot_used_post_hook != '' else '' }}
+  {{ "--deploy-hook '" + certbot_used_deploy_hook + "'"
+    if certbot_used_deploy_hook != '' else '' }}
 
 certbot_remove_command: >-
   {{ certbot_script }} delete --non-interactive --cert-name {{ item }}
