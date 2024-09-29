@@ -9,7 +9,7 @@ galaxy_info:
   author: Tinyblargon
   description: Ansible Role to configure Certbot (for Let's Encrypt).
   license: MIT
-  min_ansible_version: '2.14.1'
+  min_ansible_version: "2.14.1"
   platforms:
     - name: Debian
       versions:
