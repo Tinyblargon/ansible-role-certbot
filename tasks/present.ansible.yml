@@ -58,6 +58,19 @@
     loop_var: cert_item
     label: "{{ cert_item.primary_domain }}"
 
+- name: Update deploy hook for existing certificates
+  ansible.builtin.lineinfile:
+    path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
+    regexp: "{{ certbot_regex_deploy_hook }}"
+    line: "deploy_hook = '{{ certbot_used_deploy_hook }}'"
+    insertafter: "[renewalparams]"
+    state: >-
+      {{ (certbot_used_deploy_hook != '') | ternary('present', 'absent') }}
+  with_items: "{{ certbot_list_certs_present_existing }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.primary_domain }}"
+
 - name: Request certificates
   ansible.builtin.include_tasks:
     file: request-cert.ansible.yml
@@ -89,6 +102,19 @@
     insertafter: "[renewalparams]"
     state: >-
       {{ (certbot_used_post_hook != '') | ternary('present', 'absent') }}
+  with_items: "{{ certbot_list_certs_present_not_existing }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.primary_domain }}"
+
+- name: Update deploy hook for new certificates
+  ansible.builtin.lineinfile:
+    path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
+    regexp: "{{ certbot_regex_deploy_hook }}"
+    line: "deploy_hook = '{{ certbot_used_deploy_hook }}'"
+    insertafter: "[renewalparams]"
+    state: >-
+      {{ (certbot_used_deploy_hook != '') | ternary('present', 'absent') }}
   with_items: "{{ certbot_list_certs_present_not_existing }}"
   loop_control:
     loop_var: cert_item

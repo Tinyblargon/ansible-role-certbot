@@ -25,6 +25,7 @@ Ansible Role to configure Certbot (for Let's Encrypt)
 | certbot_key_size:           | no          | int    | 4096             | The size of the key, only active when `certbot_key_type:` is `"rsa"`. The following sizes are allowed: `2048`, `3072`, `4096`|
 | certbot_pre_hook:           | no          | string | ""               | The command to be run before requesting/renewing the certificate. The command will be encapsulated in `''`.|
 | certbot_post_hook:          | no          | string | ""               | The command to be run after requesting/renewing the certificate. The command will be encapsulated in `''`.|
+| certbot_deploy_hook:        | no          | string | ""               | The command to be run when a certificate was successfully requested/renewed. The command will be encapsulated in `''`.|
 | certbot_test:               | no          | bool   | false            | When `true` a test certificate will be requested.|
 | certbot_ca:                 | no          | string | ""               | Path to the CA to use for request validation, should be used in tandem with `certbot_server:`.|
 | certbot_server:             | no          | string | ""               | Url for a custom ACME server, should be used in tandem with `certbot_ca`.|
@@ -55,6 +56,7 @@ When any of the following setting change in the global or per cert config a new 
 | key_size:           | no          | int     | `certbot_key_size:`           | Same as `certbot_key_size:`.|
 | pre_hook:           | no          | string  | `certbot_pre_hook`            | Same as `certbot_pre_hook:`.|
 | post_hook:          | no          | string  | `certbot_post_hook`           | Same as `certbot_post_hook:`.|
+| deploy_hook:        | no          | string  | `certbot_deploy_hook`         | Same as `certbot_deploy_hook:`.|
 | test:               | no          | bool    | `certbot_test:`               | Same as `certbot_test:`.|
 | ca:                 | no          | string  | `certbot_ca:`                 | Same as `certbot_ca:`.|
 | server:             | no          | string  | `certbot_server:`             | Same as `certbot_server:`.|
