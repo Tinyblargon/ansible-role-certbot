@@ -5,8 +5,8 @@ certbot_ca: ""
 certbot_certs: []
 certbot_email: ""
 certbot_key_curve: secp384r1
-certbot_key_type: ecdsa
 certbot_key_size: 4096
+certbot_key_type: ecdsa
 certbot_remove_unknown: false
 certbot_renew_before_expiry: 0
 certbot_request_method: standalone
