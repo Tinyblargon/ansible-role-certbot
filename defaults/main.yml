@@ -1,17 +1,19 @@
 ---
 certbot_agree_tos: false
 certbot_allow_breaking: false
-certbot_ca: ''
+certbot_ca: ""
 certbot_certs: []
-certbot_email: ''
+certbot_email: ""
 certbot_key_curve: secp384r1
-certbot_key_type: ecdsa
 certbot_key_size: 4096
+certbot_key_type: ecdsa
+certbot_post_hook: ""
+certbot_pre_hook: ""
 certbot_remove_unknown: false
 certbot_renew_before_expiry: 0
 certbot_request_method: standalone
 certbot_script: certbot
-certbot_server: ''
+certbot_server: ""
 certbot_state: present
 certbot_test: false
 
@@ -29,7 +31,10 @@ certbot_request_command: >-
   {{ '--elliptic-curve ' + certbot_used_key_curve if certbot_is_ecdsa else '' }}
   {{ '--rsa-key-size ' + certbot_used_key_size if certbot_is_rsa else '' }}
   {{ '--break-my-certs' if certbot_used_allow_breaking }}
+  {{ "--pre-hook '" + certbot_used_pre_hook + "'"
+    if certbot_used_pre_hook != '' else '' }}
+  {{ "--post-hook '" + certbot_used_post_hook + "'"
+    if certbot_used_post_hook != '' else '' }}
 
 certbot_remove_command: >-
-  {{ certbot_script }} delete --non-interactive
-  --cert-name {{ cert_item.primary_domain | default(cert_item.domain) }}
+  {{ certbot_script }} delete --non-interactive --cert-name {{ item }}

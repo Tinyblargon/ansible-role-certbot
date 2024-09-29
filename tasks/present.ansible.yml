@@ -29,15 +29,34 @@
 - name: Remove certificates
   ansible.builtin.command:
     cmd: "{{ certbot_remove_command }}"
-  with_items: "{{ certbot_certs_properties }}"
+  loop: "{{ certbot_remove_certs }}"
+  changed_when: true
+
+- name: Update pre hook for existing certificates
+  ansible.builtin.lineinfile:
+    path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
+    regexp: "{{ certbot_regex_pre_hook }}"
+    line: "pre_hook = '{{ certbot_used_pre_hook }}'"
+    insertafter: "[renewalparams]"
+    state: >-
+      {{ (certbot_used_pre_hook != '') | ternary('present', 'absent') }}
+  with_items: "{{ certbot_list_certs_present_existing }}"
   loop_control:
     loop_var: cert_item
-    label: "{{ cert_item.domain }}"
-  when:
-    (certbot_select_cert_item.0.state is defined
-    and certbot_select_cert_item.0.state == 'absent')
-    or (not certbot_select_cert_item | length > 0 and certbot_remove_unknown )
-  changed_when: true
+    label: "{{ cert_item.primary_domain }}"
+
+- name: Update post hook for existing certificates
+  ansible.builtin.lineinfile:
+    path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
+    regexp: "{{ certbot_regex_post_hook }}"
+    line: "post_hook = '{{ certbot_used_post_hook }}'"
+    insertafter: "[renewalparams]"
+    state: >-
+      {{ (certbot_used_post_hook != '') | ternary('present', 'absent') }}
+  with_items: "{{ certbot_list_certs_present_existing }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.primary_domain }}"
 
 - name: Request certificates
   ansible.builtin.include_tasks:
@@ -46,9 +65,34 @@
   loop_control:
     loop_var: cert_item
     label: "{{ cert_item.primary_domain }}"
-  when:
-    certbot_con_diff
+  when: certbot_con_diff
     and not certbot_con_cert_item_absent
+
+- name: Update pre hook for new certificates
+  ansible.builtin.lineinfile:
+    path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
+    regexp: "{{ certbot_regex_pre_hook }}"
+    line: "pre_hook = '{{ certbot_used_pre_hook }}'"
+    insertafter: "[renewalparams]"
+    state: >-
+      {{ (certbot_used_pre_hook != '') | ternary('present', 'absent') }}
+  with_items: "{{ certbot_list_certs_present_not_existing }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.primary_domain }}"
+
+- name: Update post hook for new certificates
+  ansible.builtin.lineinfile:
+    path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
+    regexp: "{{ certbot_regex_post_hook }}"
+    line: "post_hook = '{{ certbot_used_post_hook }}'"
+    insertafter: "[renewalparams]"
+    state: >-
+      {{ (certbot_used_post_hook != '') | ternary('present', 'absent') }}
+  with_items: "{{ certbot_list_certs_present_not_existing }}"
+  loop_control:
+    loop_var: cert_item
+    label: "{{ cert_item.primary_domain }}"
 
 - name: Update renew_before_expiry in letsencrypt renewal configuration
   ansible.builtin.lineinfile:
@@ -60,8 +104,7 @@
     certbot_hashtag: >-
       {{ '' if certbot_used_renew_before_expiry | int > 0 else '# ' }}
     certbot_days: "{{ certbot_used_renew_before_expiry }} days"
-  with_items: "{{ certbot_certs }}"
+  with_items: "{{ certbot_list_certs_present }}"
   loop_control:
     loop_var: cert_item
     label: "{{ cert_item.primary_domain }}"
-  when: not certbot_con_cert_item_absent
