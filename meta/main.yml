@@ -13,7 +13,12 @@ galaxy_info:
   platforms:
     - name: Debian
       versions:
+        - trixie
         - bookworm
+    - name: Ubuntu
+      versions:
+        - noble
+        - jammy
   galaxy_tags:
     - certbot
     - letsencrypt
