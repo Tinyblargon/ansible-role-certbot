@@ -1,5 +1,7 @@
 # Ansible Role: certbot
 
+[![CI](https://github.com/Tinyblargon/ansible-role-certbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Tinyblargon/ansible-role-certbot)
+
 Ansible Role to configure Certbot (for Let's Encrypt)
 
 ## Requirements
