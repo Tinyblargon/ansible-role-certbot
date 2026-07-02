@@ -132,12 +132,6 @@ certbot_list_certs_present_existing: >-
   | selectattr('primary_domain', 'in',
     certbot_certs_properties | map(attribute='domain') | list) | list}}
 
-# return a list of certbot_certs objects the certificates where state: is undefined or 'present' and the primary_domain is not in the list of installed certificates
-certbot_list_certs_present_not_existing: >-
-  {{ certbot_list_certs_present
-  | rejectattr('primary_domain', 'in',
-    certbot_certs_properties | map(attribute='domain') | list) | list}}
-
 # returns a list of domains that are installed
 certbot_list_certs_installed: >-
   {{ (certbot_certs_properties | map(attribute='domain'))
