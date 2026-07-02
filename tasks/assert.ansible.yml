@@ -4,8 +4,7 @@
   block:
     - name: Assert primary_domain is not empty
       ansible.builtin.assert:
-        that: >-
-          {{ certbot_primary_domain_list | length == certbot_certs | length }}
+        that: certbot_primary_domain_list | length == certbot_certs | length
       vars:
         certbot_primary_domain_list: >-
           {{ certbot_certs | selectattr('primary_domain', 'defined') |
@@ -116,8 +115,7 @@
   block:
     - name: Assert key_size is valid
       ansible.builtin.assert:
-        that: >-
-          {{ certbot_used_key_size | int in certbot_valid_key_size }}
+        that: certbot_used_key_size | int in certbot_valid_key_size
       with_items: "{{ certbot_certs }}"
       loop_control:
         loop_var: cert_item
