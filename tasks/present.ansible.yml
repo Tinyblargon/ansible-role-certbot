@@ -36,7 +36,7 @@
   ansible.builtin.lineinfile:
     path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
     regexp: "{{ certbot_regex_pre_hook }}"
-    line: "pre_hook = '{{ certbot_used_pre_hook }}'"
+    line: "pre_hook = {{ certbot_used_pre_hook }}"
     insertafter: "[renewalparams]"
     state: >-
       {{ (certbot_used_pre_hook != '') | ternary('present', 'absent') }}
@@ -49,7 +49,7 @@
   ansible.builtin.lineinfile:
     path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
     regexp: "{{ certbot_regex_post_hook }}"
-    line: "post_hook = '{{ certbot_used_post_hook }}'"
+    line: "post_hook = {{ certbot_used_post_hook }}"
     insertafter: "[renewalparams]"
     state: >-
       {{ (certbot_used_post_hook != '') | ternary('present', 'absent') }}
@@ -62,7 +62,7 @@
   ansible.builtin.lineinfile:
     path: "/etc/letsencrypt/renewal/{{ cert_item.primary_domain }}.conf"
     regexp: "{{ certbot_regex_deploy_hook }}"
-    line: "deploy_hook = '{{ certbot_used_deploy_hook }}'"
+    line: "deploy_hook = {{ certbot_used_deploy_hook }}"
     insertafter: "[renewalparams]"
     state: >-
       {{ (certbot_used_deploy_hook != '') | ternary('present', 'absent') }}
