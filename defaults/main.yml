@@ -30,7 +30,8 @@ certbot_request_command: >-
   {{ ('--server ' + certbot_used_server) if certbot_used_server else '' }}
   --key-type {{ certbot_used_key_type }}
   {{ '--elliptic-curve ' + certbot_used_key_curve if certbot_is_ecdsa else '' }}
-  {{ '--rsa-key-size ' + certbot_used_key_size if certbot_is_rsa else '' }}
+  {{ '--rsa-key-size ' + certbot_used_key_size | string
+    if certbot_is_rsa else '' }}
   {{ '--break-my-certs' if certbot_used_allow_breaking }}
   {{ "--pre-hook '" + certbot_used_pre_hook + "'"
     if certbot_used_pre_hook != '' else '' }}
