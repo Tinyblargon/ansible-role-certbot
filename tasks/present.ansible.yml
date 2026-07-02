@@ -20,11 +20,11 @@
 - name: Get certificate properties
   ansible.builtin.include_tasks:
     file: check-cert.ansible.yml
-  with_items: >-
-    {{ certbot_available_certs.stdout |
-    regex_findall('Certificate Path: (.+[^\n])') | list }}
-  loop_control:
-    loop_var: fullchain_item
+  vars:
+    certbot_available_certs_paths: >-
+      {{ certbot_available_certs.stdout
+      | regex_findall('Certificate Path: (.+[^\n])') | list }}
+  when: certbot_available_certs_paths | length() > 0
 
 - name: Remove certificates
   ansible.builtin.command:
