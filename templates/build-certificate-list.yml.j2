@@ -1,0 +1,4 @@
+{% for item in certbot_crt_info.results %}
+- domain: {{ item.subject.commonName }}
+  crt: {{ item }}
+{% endfor %}

@@ -1,18 +1,25 @@
 ---
 - name: Read certificate's contents from remote machine
   ansible.builtin.slurp:
-    src: "{{ fullchain_item }}"
+    src: "{{ item }}"
+  with_items: "{{ certbot_available_certs_paths }}"
+  loop_control:
+    # `/fullchain.pem` is the 14
+    label: "{{ (item[:-14] | split('/'))[-1] }}"
   register: certbot_certificate_content
 
 - name: Get certificate properties
   community.crypto.x509_certificate_info:
-    content: "{{ certbot_certificate_content.content | b64decode }}"
-  register: certbot_crt_info
+    content: "{{ item.content | b64decode }}"
+  loop: "{{ certbot_certificate_content.results }}"
+  loop_control:
+    # `/fullchain.pem` is the 14
+    label: "{{ (item.item[:-14] | split('/'))[-1] }}"
   delegate_to: localhost
   become: false
+  register: certbot_crt_info
 
 - name: Build certificate list
   ansible.builtin.set_fact:
     certbot_certs_properties: >-
-      {{ certbot_certs_properties +
-      [{'domain': fullchain_item.split('/')[4], 'crt': certbot_crt_info}] }}
+      {{ lookup('template', 'build-certificate-list.yml.j2') | from_yaml }}
