@@ -1,0 +1,9 @@
+{% for item in certbot_renewal_file_raw.results %}
+- domain: {{ item.item.domain }}
+  renewal:
+{% for renewal_item in item.content | b64decode | split('\n') %}
+{% if renewal_item | length() > 0 and renewal_item[0] != '#' and ' = ' in renewal_item%}
+    {{ (renewal_item | regex_search('^(.+)\\s*=\\s*', '\\1'))[0] }}: {{ (renewal_item | regex_search('.+\\s*=\\s*(.+)$', '\\1'))[0] }}
+{% endif %}
+{% endfor %}
+{% endfor %}

@@ -10,8 +10,12 @@
       no_log: true
   rescue:
     - name: Display error message
-      ansible.builtin.fail:
+      # we use this instead of ansible.builtin.fail as it allow for better formatting
+      ansible.builtin.debug:
         msg: >-
           {{ 'for replacing producton certificates with staging ones certbot_allow_breaking should be set to true'
           if '--break-my-certs' in ansible_failed_result.stderr
-          else ansible_failed_result.stderr }}
+          else 'to use letsencrypt you must agree to their Terms of Service, set `certbot_agree_tos:` to `true` to agree'
+          if '--agree-tos' in ansible_failed_result.stderr
+          else (ansible_failed_result.stderr_lines) }}
+      failed_when: true
