@@ -1,0 +1,75 @@
+---
+- name: Test certbot_con_different_server
+  ansible.builtin.assert:
+    that: certbot_con_different_server == test_item.output
+    fail_msg: >-
+      {{ 'Test: ' + test_item.name + ', Expected: ' + test_item.output | string
+      + ' , but got: ' + certbot_con_different_server | string }}
+  loop:
+    - name: letsencrypt
+      output: false
+      input:
+        cert_item:
+          primary_domain: 1.example.com
+        certbot_certs_renewal:
+          - domain: 1.example.com
+            renewal:
+              server: https://acme-v02.api.letsencrypt.org/directory
+        certbot_server: ""
+    - name: same global
+      output: false
+      input:
+        cert_item:
+          primary_domain: 1.example.com
+        certbot_certs_renewal:
+          - domain: 1.example.com
+            renewal:
+              server: https://ca.example.com/acme/acme/directory
+        certbot_server: https://ca.example.com/acme/acme/directory
+    - name: different global
+      output: true
+      input:
+        cert_item:
+          primary_domain: 1.example.com
+        certbot_certs_renewal:
+          - domain: 1.example.com
+            renewal:
+              server: https://ca.test.com/acme/acme/directory
+        certbot_server: https://ca.example.com/acme/acme/directory
+    - name: private to letsencrypt
+      output: true
+      input:
+        cert_item:
+          primary_domain: 1.example.com
+        certbot_certs_renewal:
+          - domain: 1.example.com
+            renewal:
+              server: https://ca.test.com/acme/acme/directory
+        certbot_server: ""
+    - name: letsencrypt to private
+      output: true
+      input:
+        cert_item:
+          primary_domain: 1.example.com
+        certbot_certs_renewal:
+          - domain: 1.example.com
+            renewal:
+              server: https://acme-v02.api.letsencrypt.org/directory
+        certbot_server: https://ca.example.com/acme/acme/directory
+    - name: primary_domain not in list, should never happen in the real world
+      output: false
+      input:
+        cert_item:
+          primary_domain: 2.example.com
+        certbot_certs_renewal:
+          - domain: 1.example.com
+            renewal:
+              server: https://acme-v02.api.letsencrypt.org/directory
+        certbot_server: https://ca.example.com/acme/acme/directory
+  loop_control:
+    loop_var: test_item
+  vars:
+    certbot_server: "{{ test_item.input.certbot_server }}"
+    cert_item: "{{ test_item.input.cert_item }}"
+    certbot_certs_renewal: "{{ test_item.input.certbot_certs_renewal }}"
+  ignore_errors: "{{ certbot_ci_ignore }}"

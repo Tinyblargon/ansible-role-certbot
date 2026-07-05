@@ -12,15 +12,14 @@ name: CI
       - '*.md'
       - '.gitignore'
 
-defaults:
-  run:
-    working-directory: 'tinyblargon.certbot'
-
 jobs:
 
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tinyblargon.certbot
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v5
@@ -34,5 +33,27 @@ jobs:
 
       - name: Install test dependencies.
         run: pip3 install ansible ansible-lint
+      - name: Log tool info
+        run: make ansible_lint_info
       - name: Lint code.
-        run: ansible-lint
+        run: make lint
+
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies.
+        run: pip3 install ansible
+      - name: Log tool info
+        run: make ansible_info
+      - name: Run unit test playbook.
+        run: make unit_test

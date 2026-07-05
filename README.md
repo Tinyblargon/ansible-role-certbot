@@ -47,6 +47,8 @@ When any of the following setting change in the global or per cert config a new 
 - `key_curve:`
 - `key_size:`
 - `test:`
+- `ca:`
+- `server:`
 
 | **Variable Name**   | **Required**| **Type**| **Default Value**             | **Description**
 | :-------------------| :----------:| :------:| :----------------------------:| :--------------

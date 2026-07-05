@@ -10,11 +10,11 @@
 
 - name: Get certificate properties
   community.crypto.x509_certificate_info:
-    content: "{{ item.content | b64decode }}"
+    content: "{{ fullchain_item.content | b64decode }}"
   loop: "{{ certbot_certificate_content.results }}"
   loop_control:
-    # `/fullchain.pem` is the 14
-    label: "{{ (item.item[:-14] | split('/'))[-1] }}"
+    loop_var: fullchain_item
+    label: "{{ certbot_fullchain_domain }}"
   delegate_to: localhost
   become: false
   register: certbot_crt_info
@@ -23,3 +23,36 @@
   ansible.builtin.set_fact:
     certbot_certs_properties: >-
       {{ lookup('template', 'build-certificate-list.yml.j2') | from_yaml }}
+
+- name: Check root CA
+  community.crypto.certificate_complete_chain:
+    input_chain: "{{ fullchain_item.content | b64decode }}"
+    root_certificates: >-
+      {{ certbot_certs
+        | selectattr('primary_domain', 'equalto', certbot_fullchain_domain)
+        | selectattr('ca', 'defined')
+        | map(attribute='ca') | default([certbot_ca],true) }}
+  loop: "{{ certbot_certificate_content.results }}"
+  loop_control:
+    loop_var: fullchain_item
+    label: "{{ certbot_fullchain_domain }}"
+  become: false
+  failed_when: false
+  when: >-
+    certbot_fullchain_domain
+    in certbot_list_certs_present_existing_ca
+  register: certbot_ctr_root
+
+- name: Read remewal config
+  ansible.builtin.slurp:
+    src: "/etc/letsencrypt/renewal/{{ item.domain }}.conf"
+  loop: "{{ certbot_certs_properties }}"
+  loop_control:
+    label: "{{ item.domain }}"
+  when: item.domain in certbot_list_certs_present_existing_primary_domain
+  register: certbot_renewal_file_raw
+
+- name: Build root CA table
+  ansible.builtin.set_fact:
+    certbot_certs_root_ca: "{{ certbot_build_certs_root_ca }}"
+    certbot_certs_renewal: "{{ certbot_build_certs_renewal }}"

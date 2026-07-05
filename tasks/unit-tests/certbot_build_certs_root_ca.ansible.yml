@@ -1,0 +1,64 @@
+---
+- name: Test certbot_build_certs_root_ca
+  ansible.builtin.assert:
+    that: certbot_build_certs_root_ca == test_item.output
+    fail_msg: >-
+      {{ 'Test: ' + test_item.name + ', Expected: ' + test_item.output | string
+      + ' , but got: ' + certbot_build_certs_root_ca | string }}
+  loop:
+    - name: all match ca
+      output: []
+      input:
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/1.example.com/fullchain.pem"
+          root: "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
+          skipped: false
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/2.example.com/fullchain.pem"
+          root: "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/3.example.com/fullchain.pem"
+          root: "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
+    - name: all don't match ca
+      output:
+        - 1.example.com
+        - 2.example.com
+        - 3.example.com
+      input:
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/1.example.com/fullchain.pem"
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/2.example.com/fullchain.pem"
+          skipped: false
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/3.example.com/fullchain.pem"
+    - name: some don't match ca
+      output: [2.example.com]
+      input:
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/1.example.com/fullchain.pem"
+          root: "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
+          skipped: false
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/2.example.com/fullchain.pem"
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/3.example.com/fullchain.pem"
+          root: "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
+    - name: one skipped
+      output: []
+      input:
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/1.example.com/fullchain.pem"
+          root: "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/2.example.com/fullchain.pem"
+          skipped: true
+        - fullchain_item:
+            source: "/etc/letsencrypt/live/3.example.com/fullchain.pem"
+          root: "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
+  loop_control:
+    loop_var: test_item
+  vars:
+    certbot_ctr_root:
+      results: "{{ test_item.input }}"
+  ignore_errors: "{{ certbot_ci_ignore }}"

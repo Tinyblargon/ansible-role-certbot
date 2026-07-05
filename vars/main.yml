@@ -35,6 +35,8 @@ certbot_regex_pre_hook: "^#?\\s*pre_hook\\s*=.*$"
 certbot_regex_post_hook: "^#?\\s*post_hook\\s*=.*$"
 
 certbot_certs_properties: []
+certbot_certs_renewal: []
+certbot_certs_root_ca: []
 
 certbot_is_ecdsa: "{{ certbot_used_key_type in ['ecc', 'ecdsa'] }}"
 certbot_is_rsa: "{{ certbot_used_key_type == 'rsa' }}"
@@ -44,12 +46,14 @@ certbot_select_cert: >-
   {{ certbot_certs_properties |
   selectattr('domain', 'equalto', cert_item.primary_domain) }}
 
-# This condition determens if the certificates are the same
+# This condition determens if the certificates are different
 certbot_con_diff: >-
   {{ certbot_select_cert | length == 0
   or certbot_con_diff_domains
   or not certbot_con_same_mode
-  or not certbot_con_same_key }}
+  or not certbot_con_same_key
+  or certbot_con_different_ca
+  or certbot_con_different_server }}
 
 certbot_con_diff_domains: >-
   {{ (certbot_current_domains | difference(certbot_cert_domains) | length > 0)
@@ -98,8 +102,28 @@ certbot_con_same_key_curve: >-
   {{ certbot_select_cert.0.crt.public_key_data.curve is defined
   and certbot_select_cert.0.crt.public_key_data.curve == certbot_used_key_curve }}
 
+# returns true if we are sure the certificate doesn't belong to the specified rootCA
+certbot_con_different_ca: >-
+  {{ cert_item.primary_domain in certbot_certs_root_ca }}
+
 certbot_con_cert_item_absent: >-
   {{ cert_item.state is defined and cert_item.state == 'absent' }}
+
+certbot_con_different_server: >-
+  {{ false if certbot_used_server == ""
+    and (((certbot_certs_renewal_select_server
+      | regex_search('^https://.+(\.letsencrypt\.org)/.*', '\1')
+      | default([''], true))[0]) == '.letsencrypt.org')
+    else (
+      certbot_used_server != certbot_certs_renewal_select_server
+    )
+    }}
+
+certbot_certs_renewal_select_server: >-
+  {{ ((certbot_certs_renewal
+      | selectattr('domain', 'equalto', cert_item.primary_domain))[0]
+      | default({'renewal':{'server':certbot_used_server}}, true)
+      ).renewal.server }}
 
 # list of certificate names to remove
 certbot_remove_certs: >-
@@ -132,6 +156,22 @@ certbot_list_certs_present_existing: >-
   | selectattr('primary_domain', 'in',
     certbot_certs_properties | map(attribute='domain') | list) | list}}
 
+certbot_list_certs_present_existing_ca: >-
+  {{ ((certbot_list_certs_present_existing
+    | selectattr('ca', 'defined')
+    | selectattr('ca', '!=', '') | list)
+    + ((
+      certbot_list_certs_present_existing
+      | selectattr('ca', 'undefined'))
+      if certbot_ca != '' else []
+    ))
+    | map(attribute='primary_domain') | list }}
+
+# returns primary_domain: certbot_list_certs_present_existing:
+certbot_list_certs_present_existing_primary_domain: >-
+  {{ certbot_list_certs_present_existing
+    | map(attribute='primary_domain') | list }}
+
 # returns a list of domains that are installed
 certbot_list_certs_installed: >-
   {{ (certbot_certs_properties | map(attribute='domain'))
@@ -148,3 +188,15 @@ certbot_failed_domains: >-
   {{ ansible_failed_result.results | selectattr('failed', 'defined') |
   selectattr('failed', 'equalto', true) | map(attribute='_ansible_item_label') |
   list }}
+
+# Parses the primary domain name from the fullchain file
+# `/fullchain.pem` is the 14
+certbot_fullchain_domain: "{{ (fullchain_item.source[:-14] | split('/'))[-1] }}"
+
+certbot_build_certs_root_ca: >-
+  {{ (lookup('template', 'build-root-ca-table.yml.j2') | from_yaml)
+    | default([], true) }}
+
+certbot_build_certs_renewal: >-
+  {{ (lookup('template', 'build-certs-renewal.yml.j2') | from_yaml)
+    | default([], true) }}
