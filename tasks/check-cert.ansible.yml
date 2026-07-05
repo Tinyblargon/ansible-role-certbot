@@ -31,7 +31,7 @@
       {{ certbot_certs
         | selectattr('primary_domain', 'equalto', certbot_fullchain_domain)
         | selectattr('ca', 'defined')
-        | map(attribute='ca') | default([certbot_ca],true) }}
+        | map(attribute='ca') | default([certbot_ca], true) }}
   loop: "{{ certbot_certificate_content.results }}"
   loop_control:
     loop_var: fullchain_item

@@ -58,14 +58,14 @@ When any of the following setting change in the global or per cert config a new 
 | key_type:           | no          | string  | `certbot_key_type:`           | Same as `certbot_key_type:`.
 | key_curve:          | no          | string  | `certbot_key_curve:`          | Same as `certbot_key_curve:`.
 | key_size:           | no          | int     | `certbot_key_size:`           | Same as `certbot_key_size:`.
-| pre_hook:           | no          | string  | `certbot_pre_hook`            | Same as `certbot_pre_hook:`.
-| post_hook:          | no          | string  | `certbot_post_hook`           | Same as `certbot_post_hook:`.
-| deploy_hook:        | no          | string  | `certbot_deploy_hook`         | Same as `certbot_deploy_hook:`.
+| pre_hook:           | no          | string  | `certbot_pre_hook:`           | Same as `certbot_pre_hook:`.
+| post_hook:          | no          | string  | `certbot_post_hook:`          | Same as `certbot_post_hook:`.
+| deploy_hook:        | no          | string  | `certbot_deploy_hook:`        | Same as `certbot_deploy_hook:`.
 | test:               | no          | bool    | `certbot_test:`               | Same as `certbot_test:`.
 | ca:                 | no          | string  | `certbot_ca:`                 | Same as `certbot_ca:`.
 | server:             | no          | string  | `certbot_server:`             | Same as `certbot_server:`.
 | renew_before_expiry:| no          | int     | `certbot_renew_before_expiry:`| Same as `certbot_renew_before_expiry:`.
-| allow_breaking:     | no          | bool    | `certbot_allow_breaking`      | Same as `certbot_allow_breaking`.
+| allow_breaking:     | no          | bool    | `certbot_allow_breaking:`     | Same as `certbot_allow_breaking:`.
 
 ## Dependencies
 
