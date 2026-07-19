@@ -192,6 +192,9 @@ certbot_failed_domains: >-
 # Parses the primary domain name from the fullchain file
 certbot_fullchain_domain: "{{ fullchain_item.source | dirname() | basename() }}"
 
+certbot_build_certificate_list: >-
+  {{ lookup('template', 'build-certificate-list.yml.j2') | from_yaml }}
+
 certbot_build_certs_root_ca: >-
   {{ (lookup('template', 'build-root-ca-table.yml.j2') | from_yaml)
     | default([], true) }}

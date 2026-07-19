@@ -1,0 +1,39 @@
+---
+- name: Test certbot_build_certificate_list
+  ansible.builtin.assert:
+    that: certbot_build_certificate_list == test_item.output
+    fail_msg: >-
+      {{ 'Test: ' + test_item.name + ', Expected: ' + test_item.output | string
+      + ' , but got: ' + certbot_build_certificate_list | string }}
+  loop:
+    - name: test
+      input:
+        - fullchain_item:
+            source: /etc/letsencrypt/live/example.com/fullchain.pem
+          subject_alt_name:
+            - DNS:example.com
+        - fullchain_item:
+            source: /etc/letsencrypt/live/test.example.com/fullchain.pem
+          subject_alt_name:
+            - DNS:example.com
+            - DNS:test.example.com
+      output:
+        - domain: example.com
+          crt:
+            fullchain_item:
+              source: /etc/letsencrypt/live/example.com/fullchain.pem
+            subject_alt_name:
+              - DNS:example.com
+        - domain: test.example.com
+          crt:
+            fullchain_item:
+              source: /etc/letsencrypt/live/test.example.com/fullchain.pem
+            subject_alt_name:
+              - DNS:example.com
+              - DNS:test.example.com
+  loop_control:
+    loop_var: test_item
+  vars:
+    certbot_crt_info:
+      results: "{{ test_item.input }}"
+  ignore_errors: "{{ certbot_ci_ignore }}"

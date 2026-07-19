@@ -20,8 +20,7 @@
 
 - name: Build certificate list
   ansible.builtin.set_fact:
-    certbot_certs_properties: >-
-      {{ lookup('template', 'build-certificate-list.yml.j2') | from_yaml }}
+    certbot_certs_properties: "{{ certbot_build_certificate_list }}"
 
 - name: Check root CA
   community.crypto.certificate_complete_chain:
