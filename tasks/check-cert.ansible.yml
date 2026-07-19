@@ -4,8 +4,7 @@
     src: "{{ item }}"
   with_items: "{{ certbot_available_certs_paths }}"
   loop_control:
-    # `/fullchain.pem` is the 14
-    label: "{{ (item[:-14] | split('/'))[-1] }}"
+    label: "{{ item | dirname() | basename() }}"
   register: certbot_certificate_content
 
 - name: Get certificate properties
