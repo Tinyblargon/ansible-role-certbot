@@ -4,8 +4,7 @@
     src: "{{ item }}"
   with_items: "{{ certbot_available_certs_paths }}"
   loop_control:
-    # `/fullchain.pem` is the 14
-    label: "{{ (item[:-14] | split('/'))[-1] }}"
+    label: "{{ item | dirname() | basename() }}"
   register: certbot_certificate_content
 
 - name: Get certificate properties
@@ -21,8 +20,7 @@
 
 - name: Build certificate list
   ansible.builtin.set_fact:
-    certbot_certs_properties: >-
-      {{ lookup('template', 'build-certificate-list.yml.j2') | from_yaml }}
+    certbot_certs_properties: "{{ certbot_build_certificate_list }}"
 
 - name: Check root CA
   community.crypto.certificate_complete_chain:

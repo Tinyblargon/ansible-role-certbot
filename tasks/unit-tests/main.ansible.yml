@@ -1,4 +1,8 @@
 ---
+- name: Test certbot_build_certificate_list
+  ansible.builtin.import_tasks:
+    file: unit-tests/certbot_build_certificate_list.ansible.yml
+
 - name: Test certbot_build_certs_root_ca
   ansible.builtin.import_tasks:
     file: unit-tests/certbot_build_certs_root_ca.ansible.yml

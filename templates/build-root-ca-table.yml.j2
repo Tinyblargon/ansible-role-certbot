@@ -1,5 +1,5 @@
 {% for item in certbot_ctr_root.results %}
 {% if item.root is undefined and (item.skipped is undefined or not item.skipped)%}
-- {{ (item.fullchain_item.source[:-14] | split('/'))[-1] }}
+- {{ item.fullchain_item.source | dirname() | basename() }}
 {% endif %}
 {% endfor %}

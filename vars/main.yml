@@ -190,8 +190,10 @@ certbot_failed_domains: >-
   list }}
 
 # Parses the primary domain name from the fullchain file
-# `/fullchain.pem` is the 14
-certbot_fullchain_domain: "{{ (fullchain_item.source[:-14] | split('/'))[-1] }}"
+certbot_fullchain_domain: "{{ fullchain_item.source | dirname() | basename() }}"
+
+certbot_build_certificate_list: >-
+  {{ lookup('template', 'build-certificate-list.yml.j2') | from_yaml }}
 
 certbot_build_certs_root_ca: >-
   {{ (lookup('template', 'build-root-ca-table.yml.j2') | from_yaml)
