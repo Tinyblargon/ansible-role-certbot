@@ -202,3 +202,7 @@ certbot_build_certs_root_ca: >-
 certbot_build_certs_renewal: >-
   {{ (lookup('template', 'build-certs-renewal.yml.j2') | from_yaml)
     | default([], true) }}
+
+certbot_flag_verbose: >-
+  {{ ('-' + (lookup('template', 'build-verbose.txt.j2')))
+    if certbot_verbose > 0 else '' }}

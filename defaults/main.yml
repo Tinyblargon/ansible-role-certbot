@@ -17,12 +17,14 @@ certbot_script: certbot
 certbot_server: ""
 certbot_state: present
 certbot_test: false
+certbot_verbose: 0
 
 certbot_request_command: >-
   {{ certbot_script }} certonly --{{ certbot_request_method }}
   {{ '--test-cert' if certbot_used_test else '' }}
   {{ '--agree-tos' if certbot_agree_tos else '' }}
   --noninteractive --force-renew
+  {{ certbot_flag_verbose }}
   --email {{ certbot_used_email }}
   --cert-name {{ cert_item.primary_domain }}
   -d {{ cert_item.primary_domain }} {{ '-d ' + cert_item.domains | join(' -d ')

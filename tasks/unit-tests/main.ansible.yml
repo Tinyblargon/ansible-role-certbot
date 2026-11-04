@@ -10,3 +10,7 @@
 - name: Test certbot_con_different_server
   ansible.builtin.import_tasks:
     file: unit-tests/certbot_con_different_server.ansible.yml
+
+- name: Test certbot_flag_verbose
+  ansible.builtin.import_tasks:
+    file: unit-tests/certbot_flag_verbose.ansible.yml
