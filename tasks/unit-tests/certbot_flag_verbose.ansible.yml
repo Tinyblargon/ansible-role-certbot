@@ -1,0 +1,25 @@
+---
+- name: Test certbot_flag_verbose
+  ansible.builtin.assert:
+    that: certbot_flag_verbose == test_item.output
+    fail_msg: >-
+      {{ 'Test: ' + test_item.name + ', Expected: ' + test_item.output | string
+      + ' , but got: ' + certbot_flag_verbose | string }}
+  loop:
+    - name: no verbose
+      output: ""
+      input: 0
+    - name: one verbose
+      output: -v
+      input: 1
+    - name: two verbose
+      output: -vv
+      input: 2
+    - name: five verbose
+      output: -vvvvv
+      input: 5
+  loop_control:
+    loop_var: test_item
+  vars:
+    certbot_verbose: "{{ test_item.input }}"
+  ignore_errors: "{{ certbot_ci_ignore }}"

@@ -34,6 +34,7 @@ Ansible Role to configure Certbot (for Let's Encrypt)
 | certbot_renew_before_expiry:| no          | int    | 0                | The number of days before certificate expiry certbot should renew the certificate. When this is `0` certbot's default value will be used.
 | certbot_allow_breaking:     | no          | bool   | false            | Whether certbot is allowed to replace valid certificates with invalid/testing certificates.
 | certbot_script:             | no          | string | "certbot"        | The command for executing certbot.
+| certbot_verbose:            | no          | int    | 0                | Verbosity of the log level.
 
 ### Certbot_certs
 
